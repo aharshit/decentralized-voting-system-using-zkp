@@ -2,17 +2,12 @@ pragma circom 2.2.3;
 
 include "../node_modules/circomlib/circuits/poseidon.circom"; 
 include "../node_modules/circomlib/circuits/comparators.circom"; 
-include "../node_modules/circomlib/circuits/bitify.circom"; 
-include "./merkleTree.circom";
 
-template voting (depth) {
+template voting () {
     signal input ToWhomVote;
     signal input Salt;
     signal input IdentityKey;
-    signal input Root;
-    signal input lemma[depth + 2];
-    signal input path[depth];
-
+    
     signal output Vote;
     signal output Nullifier;
 
@@ -29,19 +24,13 @@ template voting (depth) {
    
     component idCommit = Poseidon(1);
     idCommit.inputs[0] <== IdentityKey;
-    idCommit.out === lemma[0];
-    component mp = MerkleProof(depth);
-    mp.path <== path;
-    mp.lemma <== lemma;
-    Root === lemma[depth + 1];
+    Nullifier <== idCommit.out;
 
     component VoteHash = Poseidon(2);
     VoteHash.inputs[0] <== ToWhomVote;
     VoteHash.inputs[1] <== Salt;
-    Vote <== VoteHash.out;
-
-    Nullifier <== idCommit.out;
+    Vote <== VoteHash.out;  
     
 }
 
-component main = voting(10);
+component main = voting();
