@@ -4,8 +4,8 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/comparators.circom";
 include "./allowed_voters.circom";
 
-
 template voting () {
+    var ALLOWED_VOTERS_COUNT = 4;
     signal input ToWhomVote;
     signal input Salt;
     signal input IdentityKey;
@@ -24,14 +24,19 @@ template voting () {
     signal VoteIsValid <== VoteInMaxRange.out * VoteIsMinRange.out;
     VoteIsValid===1;
    
-    signal isAllowed;
-    isAllowed <== 0;
-    for (var i = 0; i < ALLOWED_VOTERS.length; i++) {
-        signal m;
-        m <== IdentityKey === ALLOWED_VOTERS[i];
-        isAllowed <== isAllowed + m - isAllowed * m;
+    component V = AllowedVoters();
+    component eq[ALLOWED_VOTERS_COUNT];
+
+    var matchCount = 0;
+
+    for (var i = 0; i < ALLOWED_VOTERS_COUNT; i++) {
+        eq[i] = IsEqual();
+        eq[i].in[0] <== IdentityKey;
+        eq[i].in[1] <== V.voters[i];
+        matchCount += eq[i].out;
     }
 
+    signal isAllowed <== matchCount;
     isAllowed === 1;
 
     component idCommit = Poseidon(1);
