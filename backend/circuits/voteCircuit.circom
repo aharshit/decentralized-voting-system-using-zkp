@@ -1,18 +1,15 @@
 pragma circom 2.2.3;
 
 include "../node_modules/circomlib/circuits/poseidon.circom"; 
-include "../node_modules/circomlib/circuits/comparators.circom"; 
-include "../node_modules/circomlib/circuits/bitify.circom"; 
-include "./merkleTree.circom";
+include "../node_modules/circomlib/circuits/comparators.circom";
+include "./allowed_voters.circom";
 
-template voting (depth) {
+template voting () {
+    var ALLOWED_VOTERS_COUNT = 4;
     signal input ToWhomVote;
     signal input Salt;
     signal input IdentityKey;
-    signal input Root;
-    signal input lemma[depth + 2];
-    signal input path[depth];
-
+    
     signal output Vote;
     signal output Nullifier;
 
@@ -27,21 +24,30 @@ template voting (depth) {
     signal VoteIsValid <== VoteInMaxRange.out * VoteIsMinRange.out;
     VoteIsValid===1;
    
+    component V = AllowedVoters();
+    component eq[ALLOWED_VOTERS_COUNT];
+
+    var matchCount = 0;
+
+    for (var i = 0; i < ALLOWED_VOTERS_COUNT; i++) {
+        eq[i] = IsEqual();
+        eq[i].in[0] <== IdentityKey;
+        eq[i].in[1] <== V.voters[i];
+        matchCount += eq[i].out;
+    }
+
+    signal isAllowed <== matchCount;
+    isAllowed === 1;
+
     component idCommit = Poseidon(1);
     idCommit.inputs[0] <== IdentityKey;
-    idCommit.out === lemma[0];
-    component mp = MerkleProof(depth);
-    mp.path <== path;
-    mp.lemma <== lemma;
-    Root === lemma[depth + 1];
+    Nullifier <== idCommit.out;
 
     component VoteHash = Poseidon(2);
     VoteHash.inputs[0] <== ToWhomVote;
     VoteHash.inputs[1] <== Salt;
-    Vote <== VoteHash.out;
-
-    Nullifier <== idCommit.out;
+    Vote <== VoteHash.out;  
     
 }
 
-component main = voting(10);
+component main = voting();
