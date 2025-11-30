@@ -14,7 +14,10 @@ backend//coverage
 backend//coverage.json
 
 # Hardhat Ignition default folder for deployments against a local node
-backend/ignition/deployments/chain-31337
+backend/ignition/deployments/
 backend/circuits/outputs
 backend/circuits/keys
 backend/powersofTau
+backend/.env
+backend/cache
+backend/artifacts

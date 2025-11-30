@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.28;
 
-import "./Groth16verifier.sol"
+import "./Groth16Verifier.sol";
 
 contract  Vote{
     Groth16Verifier public verifier;
@@ -22,8 +22,6 @@ contract  Vote{
     ) external returns (bool) {
         bool ok = verifier.verifyProof(a, b, c, publicSignals);
         require(ok, "invalid proof");
-
-        uint256 commitment = publicSignals[0];
         uint256 nullifier = publicSignals[1];
 
         require(!usedNullifier[nullifier], "double vote");
