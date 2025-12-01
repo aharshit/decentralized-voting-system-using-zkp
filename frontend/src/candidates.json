@@ -1,0 +1,7 @@
+[
+  { "id": 1, "name": "Pikachu", "img": "/images/Pikachu.png" },
+  { "id": 2, "name": "Bulbasaur", "img": "/images/Bulbasaur.png" },
+  { "id": 3, "name": "Charmander", "img": "/images/Charmander.png" },
+  { "id": 4, "name": "Squirtle", "img": "/images/Squirtle.png" }
+]
+
