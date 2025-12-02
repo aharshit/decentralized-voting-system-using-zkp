@@ -50,7 +50,6 @@ function Home() {
 
       const salt = (BigInt(Date.now()) +BigInt(Math.floor(Math.random() * 1e6))).toString();
       const identityKey = BigInt(account).toString();
-      console.log(identityKey);
       const inputs = {
         ToWhomVote: pokemonId,
         Salt: salt,
@@ -61,12 +60,15 @@ function Home() {
       console.log(publicSignals);
       const a = [proof.pi_a[0], proof.pi_a[1]];
       const b = [
-        [proof.pi_b[0][0], proof.pi_b[0][1]],
-        [proof.pi_b[1][0], proof.pi_b[1][1]]
+        [proof.pi_b[0][1], proof.pi_b[0][0]],
+        [proof.pi_b[1][1], proof.pi_b[1][0]]
       ];
       const c = [proof.pi_c[0], proof.pi_c[1]];
+      const pub = [publicSignals[0].toString(),
+      publicSignals[1].toString()];
 
-      const tx = await contract.vote(pokemonId, a, b, c, publicSignals);
+
+      const tx = await contract.vote(pokemonId, a, b, c, pub);
       await tx.wait();
 
       alert("Vote submitted!");
